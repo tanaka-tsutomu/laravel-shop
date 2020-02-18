@@ -23,6 +23,11 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'as' => 'admin.', 'mi
 Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'as' => 'admin.', 'middleware' => 'auth:admin'], function () {
     Route::post('logout', 'LoginController@logout')->name('logout');
     Route::get('home', 'HomeController@index')->name('home');
+
+    Route::resource('products', 'ProductsController');
+    Route::resource('product_categories', 'ProductCategoriesController');
+    Route::resource('users', 'UsersController' );
+    Route::resource('admin_users', 'AdminUsersController');
 });
 
 Route::redirect('/admin', '/admin/home');
