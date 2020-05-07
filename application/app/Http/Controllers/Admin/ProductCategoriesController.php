@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\ProductCategory;
+use App\Models\Product;
 
 class ProductCategoriesController extends Controller
 {
@@ -42,12 +43,13 @@ class ProductCategoriesController extends Controller
         }
 
         if($name != null){
-            $query->where('name','like','%'.$name.'%');
+            $query->where('name','like',"%$name%");
         }
 
         if($pageUnit != null) {
             $ProductCategories = $query->paginate($pageUnit);
         }
+
         return view('admin.product_categories.index',
             compact('ProductCategories','name', 'sort', 'pageUnit'));
     }
@@ -59,7 +61,7 @@ class ProductCategoriesController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.product_categories.create');
     }
 
     /**
@@ -70,7 +72,31 @@ class ProductCategoriesController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $inputs = $request->all();
+
+        $rules = [
+            'name' => 'required',
+            'order_no' => 'required'
+        ];
+
+        $message = [
+            'name.required' => 'nameは、必ず指定してください。',
+            'order_no.required' => 'order noは、必ず指定してください。',
+        ];
+
+        $validation = \Validator::make($inputs, $rules, $message);
+
+        if ($validation->fails())
+        {
+            return redirect()->back()->withErrors($validation->errors())->withInput();
+        }
+
+        $productCategory = new ProductCategory();
+        $productCategory->name = $request->name;
+        $productCategory->order_no = $request->order_no;
+        $productCategory->save();
+
+        return redirect("http://localhost/admin/product_categories/$productCategory->id");
     }
 
     /**
@@ -79,9 +105,14 @@ class ProductCategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(ProductCategory $productCategory)
+    public function show($id)
     {
-        return view('admin.product_categories.show', ['productCategory' => $productCategory]);
+        $productCategory = ProductCategory::find($id);
+        $products = Product::all();
+        return view('admin.product_categories.show', [
+            'productCategory' => $productCategory,
+            compact('products')
+        ]);
     }
 
     /**
@@ -92,7 +123,9 @@ class ProductCategoriesController extends Controller
      */
     public function edit(ProductCategory $productCategory)
     {
-        return view('admin.product_categories.edit', ['productCategory' => $productCategory]);
+        return view('admin.product_categories.edit', [
+            'productCategory' => $productCategory
+        ]);
     }
 
     /**
@@ -102,9 +135,29 @@ class ProductCategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, ProductCategory $productCategory)
     {
-        //
+        $inputs = $request->all();
+
+        $rules = [
+            'name' => 'required',
+            'order_no' => 'required'
+        ];
+
+        $message = [
+            'name.required' => 'nameは、必ず指定してください。',
+            'order_no.required' => 'order noは、必ず指定してください。',
+        ];
+
+        $validation = \Validator::make($inputs, $rules, $message);
+
+        if ($validation->fails())
+        {
+            return redirect()->back()->withErrors($validation->errors())->withInput();
+        }
+
+        $productCategory->update($request->all());
+        return redirect("http://localhost/admin/product_categories/$productCategory->id");
     }
 
     /**
@@ -115,6 +168,7 @@ class ProductCategoriesController extends Controller
      */
     public function destroy($id)
     {
-        //
+        ProductCategory::find($id)->delete();
+        return redirect("http://localhost/admin/product_categories");
     }
 }

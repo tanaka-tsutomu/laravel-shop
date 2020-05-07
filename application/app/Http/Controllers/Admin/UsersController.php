@@ -21,7 +21,7 @@ class UsersController extends Controller
         $sort = $request->get('sort', "id-asc");
         $pageUnit = $request->get('page_unit', 10);
 
-        switch ($sort){
+        switch ($sort) {
             case 'id-asc':
                 $query = $query->orderBy('id', 'ASC');
                 break;
@@ -42,18 +42,18 @@ class UsersController extends Controller
                 break;
         }
 
-        if($name != null){
-            $query->where('name','like','%'.$name.'%');
+        if ($name != null) {
+            $query->where('name','like',"%$name%");
         }
-        if($email != null) {
-            $query->where('email','like','%'.$email.'%');
+        if ($email != null) {
+            $query->where('email','like',"%$email");
         }
 
-        if($pageUnit != null) {
-            $Users = $query->paginate($pageUnit);
+        if ($pageUnit != null) {
+            $users = $query->paginate($pageUnit);
         }
         return view('admin.users.index',
-            compact('Users', 'name', 'email', 'sort', 'pageUnit'));
+            compact('users', 'name', 'email', 'sort', 'pageUnit'));
     }
 
     /**
@@ -63,7 +63,7 @@ class UsersController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.users.create');
     }
 
     /**
@@ -74,7 +74,40 @@ class UsersController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $inputs = $request->all();
+
+        $rules = [
+            'name' => 'required',
+            'email' => 'required | email',
+            'password' => 'required',
+            'password_confirmation' => 'same:password'
+        ];
+
+        $message = [
+            'name.required' => 'nameは、必ず指定してください。',
+            'email.required' => 'emailは、必ず指定してください。',
+            'email.email' => 'emailは、有効なメールアドレス形式で指定してください。',
+            'password.required' => 'passwordは、必ず指定してください。',
+            'password_confirmation.same' => 'passwordとpassword確認が一致しません。',
+        ];
+
+        $validation = \Validator::make($inputs, $rules, $message);
+
+        if ($validation->fails())
+        {
+            return redirect()->back()->withErrors($validation->errors())->withInput();
+        }
+
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = $request->password;
+        $pass_path1 = $request->file('image_path')->store('public\photo');
+        $pass_path2 = str_replace('public\\', '', $pass_path1);
+        $user->image_path = $pass_path2;
+        $user->save();
+
+        return redirect("http://localhost/admin/users/$user->id");
     }
 
     /**
@@ -83,9 +116,12 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(User $user)
+    public function show($id)
     {
-        return view('admin.users.show', ['user' => $user]);
+        $user = User::find($id);
+        return view('admin.users.show', [
+            'user' => $user
+        ]);
     }
 
     /**
@@ -96,7 +132,9 @@ class UsersController extends Controller
      */
     public function edit(User $user)
     {
-        return view('admin.users.edit', ['user' => $user]);
+        return view('admin.users.edit', [
+            'user' => $user
+        ]);
     }
 
     /**
@@ -106,9 +144,40 @@ class UsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, User $user)
     {
-        //
+        $inputs = $request->all();
+
+        $rules = [
+            'name' => 'required',
+            'email' => 'required | email',
+            'password' => 'required',
+            'password_confirmation' => 'same:password',
+        ];
+
+        $message = [
+            'name.required' => 'nameは、必ず指定してください。',
+            'email.required' => 'emailは、必ず指定してください。',
+            'email.email' => 'emailは、有効なメールアドレス形式で指定してください。',
+            'password.required' => 'passwordは、必ず指定してください。',
+            'password_confirmation.same' => 'passwordとpassword確認が一致しません。',
+        ];
+
+        $validation = \Validator::make($inputs, $rules, $message);
+
+        if ($validation->fails()) {
+            return redirect()->back()->withErrors($validation->errors())->withInput();
+        }
+
+        if ($request->delete_image == "1") {
+            $user->image_path = null;
+        } elseif ($request->image_path != null) {
+            $pass_path1 = $request->file('image_path')->store('public\photo');
+            $pass_path2 = str_replace('public\\', '', $pass_path1);
+            $user->image_path = $pass_path2;
+        }
+        $user->update($request->all());
+            return redirect("http://localhost/admin/users/$user->id");
     }
 
     /**
@@ -119,6 +188,7 @@ class UsersController extends Controller
      */
     public function destroy($id)
     {
-        //
+        User::find($id)->delete();
+        return redirect("http://localhost/admin/users");
     }
 }

@@ -13,7 +13,7 @@ class AdminUsersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index (Request $request)
     {
         $query = AdminUser::query();
         $name = $request->get('name', null);
@@ -22,7 +22,7 @@ class AdminUsersController extends Controller
         $sort = $request->get('sort', 10);
         $pageUnit = $request->get('page_unit', 10);
 
-        switch ($sort){
+        switch ($sort) {
             case 'id-asc':
                 $query = $query->orderBy('id', 'ASC');
                 break;
@@ -49,31 +49,29 @@ class AdminUsersController extends Controller
                 break;
         }
 
-        if($name != null){
-            $query->where('name','like','%'.$name.'%');
+        if ($name != null) {
+            $query = $query->where('name', 'like', "%$name%");
         }
-        if($email != null) {
-            $query->where('email','like','%'.$email.'%');
+        if ($email != null) {
+            $query = $query->where('email', 'like', "%$email");
         }
 
-        switch ($authority){
+        switch ($authority) {
             case 'all':
                 $query->get();
                 break;
             case 'owner':
-                $query->where('is_owner','like','1');
+                $query->whereIs_owner(true);
                 break;
             case 'general':
-                $query->where('is_owner','like','0');
+                $query->whereIs_owner(false);
                 break;
         }
 
-        if($pageUnit != null) {
-            $AdminUsers = $query->paginate($pageUnit);
-        }
+            $adminUsers = $query->paginate($pageUnit);
 
         return view('admin.admin_users.index',
-            compact('AdminUsers', 'name', 'email', 'authority', 'sort', 'pageUnit'));
+            compact('adminUsers', 'name', 'email', 'authority', 'sort', 'pageUnit'));
     }
 
     /**
@@ -94,7 +92,39 @@ class AdminUsersController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $inputs = $request->all();
+
+        $rules = [
+            'name' => 'required',
+            'email' => 'required | email',
+            'password' => 'required',
+            'password_confirmation' => 'same:password',
+            'is_owner' => 'required'
+            ];
+
+        $message = [
+            'name.required' => 'nameは、必ず指定してください。',
+            'email.required' => 'emailは、必ず指定してください。',
+            'email.email' => 'emailは、有効なメールアドレス形式で指定してください。',
+            'password.required' => 'passwordは、必ず指定してください。',
+            'password_confirmation.same' => 'passwordとpassword確認が一致しません。',
+        ];
+
+        $validation = \Validator::make($inputs, $rules, $message);
+
+        if ($validation->fails())
+        {
+            return redirect()->back()->withErrors($validation->errors())->withInput();
+        }
+
+        $adminUser = new AdminUser();
+        $adminUser->name = $request->name;
+        $adminUser->email = $request->email;
+        $adminUser->password = $request->password;
+        $adminUser->is_owner = $request->is_owner;
+        $adminUser->save();
+
+        return redirect("http://localhost/admin/admin_users/$adminUser->id");
     }
 
     /**
@@ -103,9 +133,12 @@ class AdminUsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(AdminUser $adminUser)
+    public function show($id)
     {
-        return view('admin.admin_users.show', ['adminUser' => $adminUser]);
+        $adminUser = AdminUser::find($id);
+        return view('admin.admin_users.show', [
+            'adminUser' => $adminUser,
+            ]);
     }
 
     /**
@@ -116,7 +149,9 @@ class AdminUsersController extends Controller
      */
     public function edit(AdminUser $adminUser)
     {
-        return view('admin.admin_users.edit', ['adminUser' => $adminUser]);
+        return view('admin.admin_users.edit', [
+            'adminUser' => $adminUser,
+        ]);
     }
 
     /**
@@ -126,9 +161,35 @@ class AdminUsersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, AdminUser $adminUser)
     {
-        //
+        $inputs = $request->all();
+
+        $rules = [
+            'name' => 'required',
+            'email' => 'required | email',
+            'password' => 'required',
+            'password_confirmation' => 'same:password',
+            'is_owner' => 'required'
+        ];
+
+        $message = [
+            'name.required' => 'nameは、必ず指定してください。',
+            'email.required' => 'emailは、必ず指定してください。',
+            'email.email' => 'emailは、有効なメールアドレス形式で指定してください。',
+            'password.required' => 'passwordは、必ず指定してください。',
+            'password_confirmation.same' => 'passwordとpassword確認が一致しません。',
+        ];
+
+        $validation = \Validator::make($inputs, $rules, $message);
+
+        if ($validation->fails())
+        {
+            return redirect()->back()->withErrors($validation->errors())->withInput();
+        }
+
+        $adminUser->update($request->all());
+        return redirect("http://localhost/admin/admin_users/$adminUser->id");
     }
 
     /**
@@ -139,6 +200,7 @@ class AdminUsersController extends Controller
      */
     public function destroy($id)
     {
-        //
+        AdminUser::find($id)->delete();
+        return redirect("http://localhost/admin/admin_users");
     }
 }

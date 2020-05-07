@@ -12,8 +12,13 @@
 */
 
 Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/products/{product}', 'ProductsController@show');
+Route::get('/products/{product}/product_reviews/create', 'ProductsController@create');
+Route::get('/products', 'ProductsController@products');
 
 Route::redirect('/', '/home');
+
+
 
 Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'as' => 'admin.', 'middleware' => 'guest:admin'], function () {
     Route::get('login', 'LoginController@showLoginForm')->name('login');
@@ -31,5 +36,3 @@ Route::group(['prefix' => 'admin', 'namespace' => 'Admin', 'as' => 'admin.', 'mi
 });
 
 Route::redirect('/admin', '/admin/home');
-
-

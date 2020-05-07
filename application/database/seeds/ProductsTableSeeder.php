@@ -8,7 +8,7 @@ class ProductsTableSeeder extends Seeder
     {
         for ($i = 1; $i <= 50; $i++) {
             DB::table('products')->insert([
-                'image_path' => "test image {$i}",
+                'image_path' => null,
                 'name' => "product {$i}",
                 'price' => random_int(1000, 150000),
                 'description' => "hogehoge {$i}",

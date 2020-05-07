@@ -33,10 +33,16 @@ class ProductsController extends Controller
                 $query = $query->orderBy('id', 'DESC');
                 break;
             case 'product-category-asc':
-                $query = $query->orderBy('product_category_id', 'ASC');
+                $query = $query
+                    ->join('product_categories', 'product_categories.id', '=', 'products.product_category_id')
+                    ->select('products.*')
+                    ->orderBy('product_categories.name', 'ASC');
                 break;
             case 'product-category-desc':
-                $query = $query->orderBy('product_category_id', 'DESC');
+                $query = $query
+                    ->join('product_categories', 'product_categories.id', '=', 'products.product_category_id')
+                    ->select('products.*')
+                    ->orderBy('product_categories.name', 'DESC');
                 break;
             case 'name-asc':
                 $query = $query->orderBy('name', 'ASC');
@@ -52,28 +58,26 @@ class ProductsController extends Controller
                 break;
         }
 
-        if($name != null){
-            $query->where('name','like','%'.$name.'%');
+        if ($name != null) {
+            $query->where('name','like',"%$name%");
         }
 
-        if($productCategory != "all"){
+        if ($productCategory != "all") {
             $query = $query->where('product_category_id', $productCategory);
         }
 
-        if($price != null){
+        if ($price != null) {
             if ($priceCompare == 'gteq') {
-                $query->where('price', '>=', "$price");
-            }elseif ($priceCompare == 'lteq'){
-                $query->where('price', '<=', "$price");
+                $query->where('price', '>=', $price);
+            } elseif ($priceCompare == 'lteq'){
+                $query->where('price', '<=', $price);
             }
         }
 
-        if($pageUnit != null) {
-            $Products = $query->paginate($pageUnit);
-        }
+        $products = $query->paginate($pageUnit);
 
         return view('admin.products.index',
-            compact('categories','Products','productCategory', 'name', 'price', 'priceCompare', 'sort', 'pageUnit'));
+            compact('categories','products','productCategory', 'name', 'price', 'priceCompare', 'sort', 'pageUnit'));
     }
 
     /**
@@ -83,7 +87,8 @@ class ProductsController extends Controller
      */
     public function create()
     {
-        //
+        $categories = ProductCategory::all();
+        return view('admin.products.create', compact('categories'));
     }
 
     /**
@@ -94,7 +99,37 @@ class ProductsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $inputs = $request->all();
+
+        $rules = [
+            'name' => 'required',
+            'price' => 'required'
+        ];
+
+        $message = [
+            'name.required' => 'nameは、必ず指定してください。',
+            'price.required' => 'priceは、必ず指定してください。'
+        ];
+
+        $validation = \Validator::make($inputs, $rules, $message);
+
+        if ($validation->fails())
+        {
+            return redirect()->back()->withErrors($validation->errors())->withInput();
+        }
+
+        $product = new Product();
+        $product->product_category_id = $request->product_category_id;
+        $product->name = $request->name;
+        $product->price = $request->price;
+        $product->description = $request->description;
+        if ($request->image_path != null){
+            $pass_path1 = $request->file('image_path')->store('public\photo');
+            $pass_path2 = str_replace('public\\', '', $pass_path1);
+            $product->image_path = $pass_path2;
+        }
+        $product->save();
+        return redirect("http://localhost/admin/products/$product->id");
     }
 
     /**
@@ -117,7 +152,9 @@ class ProductsController extends Controller
     public function edit(Product $product)
     {
         $categories = ProductCategory::all();
-        return view('admin.products.edit', compact('product', 'categories'));
+        return view('admin.products.edit',
+            compact('product', 'categories')
+        );
     }
 
     /**
@@ -127,9 +164,41 @@ class ProductsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Product $product)
     {
-        //
+        $inputs = $request->all();
+
+        $rules = [
+            'name' => 'required',
+            'price' => 'required'
+        ];
+
+        $message = [
+            'name.required' => 'nameは、必ず指定してください。',
+            'price.required' => 'priceは、必ず指定してください。'
+        ];
+
+        $validation = \Validator::make($inputs, $rules, $message);
+
+        if ($validation->fails())
+        {
+            return redirect()->back()->withErrors($validation->errors())->withInput();
+        }
+
+        $product->product_category_id = $request->product_category_id;
+        $product->name = $request->name;
+        $product->price = $request->price;
+        $product->description = $request->description;
+        if ($request->delete_image == "1"){
+            $product->image_path = null;
+        } elseif ($request->image_path != null) {
+            $pass_path1 = $request->file('image_path')->store('public\photo');
+            $pass_path2 = str_replace('public\\', '', $pass_path1);
+            $product->image_path = $pass_path2;
+        }
+        $product->update();
+
+        return redirect("http://localhost/admin/products/$product->id");
     }
 
     /**
@@ -140,6 +209,7 @@ class ProductsController extends Controller
      */
     public function destroy($id)
     {
-        //
+        Product::find($id)->delete();
+        return redirect("http://localhost/admin/products");
     }
 }

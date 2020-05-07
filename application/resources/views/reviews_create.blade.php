@@ -39,55 +39,54 @@
     <div class="container-fluid">
         <div class="row">
             <main role="main" class="col-sm-12 px-4 py-2">
-                <div class="row">
-                    <div class="col-md-5">
-                        <img class="img-thumbnail" @if($product->image_path == null)
-                            src="/photo/no_image.png">
-                        @else
-                            src=/{{$product->image_path}}>
-                        @endif
-                    </div>
-                    <div class="col-md-7">
-                        <div class="row">
-                            <h2 class="col-md">{{$product->name}}</h2>
-                        </div>
-                        <hr>
-                        <div class="row">
-                            <div class="col-md">
-                                <span class="mr-3">価格:</span>
-                                <soan class="h5 text-danger">¥{{number_format($product->price)}}</soan>
+                <div class="row pt-3">
+                    <div class="col-sm">
+                        <form action="http://localhost/products/{{$product->id}}" method="POST">
+                            @csrf
+                            <div class="form-group">
+                                <label for="title">タイトル</label>
+                                <input type="text" class="form-control " id="title" name="title" value="" placeholder="タイトル" autofocus="">
+                                <span class="help-block" style="font-weight: bold; color: red">{{$errors->first('title')}}</span>
                             </div>
-                        </div>
-                        <div class="row pt-2">
-                            <div class="col-md">
-                                {{$product->description}}
+
+                            <div class="form-group">
+                                <label for="body">本文</label>
+                                <input type="text" class="form-control " id="body" name="body" value="" placeholder="本文">
+                                <span class="help-block" style="font-weight: bold; color: red">{{$errors->first('body')}}</span>
                             </div>
-                        </div>
-                        <hr>
-                    </div>
-                </div>
 
-                <div class="row mt-3">
-                    <div class="col-md">
-                        <a class="btn btn-primary" href="http://localhost/products/{{$product->id}}/product_reviews/create">レビューを書く</a>
-                    </div>
-                </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" id="rank1" name="rank" value="1" checked="">
+                                <label class="form-check-label" for="rank1">星1つ</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" id="rank2" name="rank" value="2">
+                                <label class="form-check-label" for="rank2">星2つ</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" id="rank3" name="rank" value="3">
+                                <label class="form-check-label" for="rank3">星3つ</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" id="rank4" name="rank" value="4">
+                                <label class="form-check-label" for="rank4">星4つ</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" class="form-check-input" id="rank5" name="rank" value="5">
+                                <label class="form-check-label" for="rank5">星5つ</label>
+                            </div>
 
-                <div class="row mt-3">
-                    <div class="col-md">
-                        <ul class="list-unstyled">
-                            <li class="media bg-white p-2 mb-3">
-                                <img src="http://shop.illmatics.space/storage/user_images/n08V56kCHCBHSrBMRt5NBAcns0U4rWAc4emu3ef5" width="30" height="30" class="mr-3" alt="...">
-                                <div class="media-body">
-                                    <h6>hoge G</h6>
-                                    <h5>
-                                        sugoi
-                                    </h5>
-                                    <div class="text-warning">★★★★</div>
-                                    hogehoge.
-                                </div>
-                            </li>
-                        </ul>
+                            <hr class="mb-3">
+
+                            <ul class="list-inline">
+                                <li class="list-inline-item">
+                                    <a href="http://localhost/products/{{$product->id}}" class="btn btn-secondary">商品へ戻る</a>
+                                </li>
+                                <li class="list-inline-item">
+                                    <button type="submit" class="btn btn-primary">レビュー</button>
+                                </li>
+                            </ul>
+                        </form>
                     </div>
                 </div>
             </main>

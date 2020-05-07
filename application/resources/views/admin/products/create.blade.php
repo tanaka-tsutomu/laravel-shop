@@ -1,56 +1,49 @@
 @extends('layouts.admin')
 
 @section('content')
-    product_categories create
-    <div class="container-fluid">
-        <div class="row">
-            <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-                <div class="sidebar-sticky">
-                    <ul class="nav flex-column">
-                        <li class="nav-item">
-                            <a class="nav-link " href="http://localhost/admin/products">
-                                商品管理
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link active " href="http://localhost/admin/product_categories">
-                                商品カテゴリ管理
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link " href="http://localhost/admin/users">
-                                顧客管理
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link " href="http://localhost/admin/admin_users">
-                                管理者管理
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-
+    products create
             <main role="main" class="col-md-10 ml-sm-auto col-lg-10 px-4">
+
                 <div class="row pt-3">
                     <div class="col-sm">
-                        <form action="http://localhost/admin/product_categories" method="POST">
+                        <form action="http://localhost/admin/products" method="POST" enctype="multipart/form-data">
                             @csrf
                             <div class="form-group">
+                                <label for="product_category_id">商品カテゴリ</label>
+                                <select class="custom-select " id="product_category_id" name="product_category_id">
+                                   @foreach ($categories as $category)
+                                        <option value="{{$category->id}}">{{ $category->name }}</option>
+                                    @endforeach>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
                                 <label for="name">名称</label>
-                                <input type="text" class="form-control " id="name" name="name" value="" placeholder="名称" autocomplete="name" autofocus="">
+                                <input type="text" class="form-control " id="name" name="name" value="" placeholder="名称" autofocus="">
                                 @if($errors->has('name'))<br><span style="font-weight:bold; color:red;" class="error">{{ $errors->first('name') }}</span> @endif
                             </div>
 
                             <div class="form-group">
-                                <label for="order-no">並び順番号</label>
-                                <input type="number" class="form-control " id="order-no" name="order_no" value="" placeholder="並び順番号">
-                                @if($errors->has('order_no'))<br><span style="font-weight:bold; color:red;" class="error">{{ $errors->first('order_no') }}</span> @endif
+                                <label for="price">価格</label>
+                                <input type="number" class="form-control " id="price" name="price" value="" placeholder="価格">
+                                @if($errors->has('price'))<br><span style="font-weight:bold; color:red;" class="error">{{ $errors->first('price') }}</span> @endif
                             </div>
+
+                            <div class="form-group">
+                                <label for="description">説明</label>
+                                <textarea class="form-control " id="description" name="description" placeholder="説明"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="image_path">イメージ</label>
+                                <input type="file" class="form-control-file" id="image_path" name="image_path">
+                            </div>
+
                             <hr class="mb-3">
+
                             <ul class="list-inline">
                                 <li class="list-inline-item">
-                                    <a href="http://localhost/admin/product_categories" class="btn btn-secondary">キャンセル</a>
+                                    <a href="http://localhost/admin/products" class="btn btn-secondary">キャンセル</a>
                                 </li>
                                 <li class="list-inline-item">
                                     <button type="submit" class="btn btn-primary">作成</button>

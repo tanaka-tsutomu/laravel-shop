@@ -8,7 +8,7 @@ class ProductCategoriesTableSeeder extends Seeder
     {
         for ($i = 1, $j = 25; $i <= 25; $i++, $j--) {
             DB::table('product_categories')->insert([
-                'name' => "Category {$i}",
+                'name' => "Category {$j}",
                 'order_no' => "{$j}",
                 'created_at' => new Datetime(),
             ]);

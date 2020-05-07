@@ -2,81 +2,52 @@
 
 @section('content')
 users
-<div class="container-fluid">
-    <div class="row">
-        <nav class="col-md-2 d-none d-md-block bg-light sidebar">
-            <div class="sidebar-sticky">
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link " href="http://localhost/admin/products">
-                            商品管理
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " href="http://localhost/admin/product_categories">
-                            商品カテゴリ管理
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="http://localhost/admin/users">
-                            顧客管理
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link " href="http://localhost/admin/admin_users">
-                            管理者管理
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-
         <main role="main" class="col-md-10 ml-sm-auto col-lg-10 px-4">
             <form class="shadow p-3 mt-3" action="http://localhost/admin/users">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <input type="text" class="form-control" id="name" name="name" value="{{old('name', $name)}}" placeholder="名称">
+                        <input type="text" class="form-control" id="name" name="name" value="{{$name}}" placeholder="名称">
                     </div>
                     <div class="col-md mb-3">
-                        <input type="text" class="form-control" id="email" name="email" value="{{old('email', $email)}}" placeholder="メールアドレス">
+                        <input type="text" class="form-control" id="email" name="email" value="{{$email}}" placeholder="メールアドレス">
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-4 mb-3">
                         <select class="custom-select" name="sort">
                             <option value="id-asc"
-                                    @if(old('sort', $sort) == "id-asc")selected
+                                    @if ($sort == "id-asc") selected
                                 @endif>並び替え: ID昇順</option>
                             <option value="id-desc"
-                                    @if(old('sort', $sort) == "id-desc")selected
+                                    @if ($sort == "id-desc") selected
                                 @endif>並び替え: ID降順</option>
                             <option value="name-asc"
-                                    @if(old('sort', $sort) == "name-asc")selected
+                                    @if ($sort == "name-asc") selected
                                 @endif>並び替え: 名称昇順</option>
                             <option value="name-desc"
-                                    @if(old('sort', $sort) == "name-desc")selected
+                                    @if ($sort == "name-desc") selected
                                 @endif>並び替え: 名称降順</option>
                             <option value="email-asc"
-                                    @if(old('sort', $sort) == "email-asc")selected
+                                    @if ($sort == "email-asc") selected
                                 @endif>並び替え: メールアドレス昇順</option>
                             <option value="email-desc"
-                                    @if(old('sort', $sort) == "email-desc")selected
+                                    @if ($sort == "email-desc") selected
                                 @endif>並び替え: メールアドレス降順</option>
                         </select>
                     </div>
                     <div class="col-md-4 mb-3">
                         <select class="custom-select" name="page_unit">
                             <option value="10"
-                                    @if(old('page_unit', $pageUnit) == 10)selected
+                                    @if ($pageUnit == 10) selected
                                 @endif>表示: 10件</option>
                             <option value="20"
-                                    @if(old('page_unit', $pageUnit) == 20)selected
+                                    @if ($pageUnit == 20) selected
                                 @endif>表示: 20件</option>
                             <option value="50"
-                                    @if(old('page_unit', $pageUnit) == 50)selected
+                                    @if ($pageUnit == 50) selected
                                 @endif>表示: 50件</option>
                             <option value="100"
-                                    @if(old('page_unit', $pageUnit) == 100)selected
+                                    @if ($pageUnit == 100) selected
                                 @endif>表示: 100件</option>
                         </select>
                     </div>
@@ -100,16 +71,16 @@ users
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach($Users as $User)
+                    @foreach ($users as $user)
                     <tr>
-                        <td>{{$User->id}}</td>
-                        <td><a href="http://localhost/admin/users/{{$User->id}}">{{$User->name}}</a></td>
-                        <td>{{$User->email}}</td>
+                        <td>{{$user->id}}</td>
+                        <td><a href="http://localhost/admin/users/{{$user->id}}">{{$user->name}}</a></td>
+                        <td>{{$user->email}}</td>
                     </tr>
                         @endforeach
                     </tbody>
                 </table>
-                {{$Users->appends(Request::except('page'))->links()}}
+                {{$users->appends(Request::except('page'))->links()}}
             </div>
         </main>
     </div>

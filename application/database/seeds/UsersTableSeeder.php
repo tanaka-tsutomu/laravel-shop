@@ -10,6 +10,7 @@ class UsersTableSeeder extends Seeder
         DB::table('users')->insert([
             'name' => '使用者',
             'email' => 'user@a.com',
+            'image_path' => null,
             'password' => Hash::make('pass'),
             'created_at' => new Datetime(),
         ]);
@@ -18,6 +19,7 @@ class UsersTableSeeder extends Seeder
             DB::table('users')->insert([
                 'name' => $fake->name,
                 'email' => $fake->email,
+                'image_path' => null,
                 'password' => Hash::make('pass'),
                 'created_at' => new Datetime(),
             ]);
