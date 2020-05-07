@@ -41,7 +41,7 @@ products {{$product->id}} ({{$product->name}})
                 </li>
                 <li class="list-inline-item">
                     <form action="http://localhost/admin/products/{{$product->id}}" method="POST">
-                        <input type="hidden" name="_token" value="0Zo8wxX25KWjvoTvAk8f7AnPSvlDndvhedH3rVKQ">
+                        @csrf
                         <input type="hidden" name="_method" value="DELETE">
                         <button type="submit" class="btn btn-danger">削除</button>
                     </form>
@@ -73,13 +73,16 @@ products {{$product->id}} ({{$product->name}})
                 <tr>
                     <th>イメージ</th>
                     <td>
-                        <img class="img-thumbnail" src="http://13.113.124.239/storage/product_images/xu3T8gpkHXf8jByUYCOS4nYkpCMQT6EXC7uNAUQM.jpeg">
+                        @if($product->image_path == null)
+                            <img src="/photo/no_image.png">
+                        @else
+                            <img src=/{{$product->image_path}}>
+                        @endif
                     </td>
                 </tr>
                 </tbody>
             </table>
         </main>
-
     </div>
 </div>
 @endsection
